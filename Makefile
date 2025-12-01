@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror -pedantic -g -Iinclude
+CFLAGS := -Wall -Wextra -Werror -pedantic -g --std=c23 -Iinclude
 
 SRC_DIR := src
 TEST_DIR := tests
@@ -15,18 +15,15 @@ TEST_BINS := $(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%, $(TEST_SRCS))
 # Default: Build all tests
 all: $(TEST_BINS)
 
-# --- STEP 1: COMPILE THE LIBRARY OBJECTS ---
-# Rule: Turn src/%.c into obj/%.o
+# Turn src/%.c into obj/%.o
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# --- STEP 2: COMPILE AND LINK THE TESTS ---
-# Rule: Turn tests/%.c into bin/%
-# Note: We depend on $(LIB_OBJS) so the library is compiled first!
+# Turn tests/%.c into bin/%
+# NOTE: We depend on $(LIB_OBJS) so the library is compiled first!
 $(BIN_DIR)/%: $(TEST_DIR)/%.c $(LIB_OBJS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $< $(LIB_OBJS) -o $@
 
-# Create directories if they don't exist
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
