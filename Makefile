@@ -6,22 +6,25 @@ TEST_DIR := tests
 OBJ_DIR := obj
 BIN_DIR := bin
 
-LIB_SRCS := $(wildcard $(SRC_DIR)/*.c)
-LIB_OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(LIB_SRCS))
+LIB_SRCS := $(shell find $(SRC_DIR) -name '*.c')
+LIB_OBJS := $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(LIB_SRCS)))
 
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.c)
-TEST_BINS := $(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%, $(TEST_SRCS))
+TEST_SRCS := $(shell find $(TEST_DIR) -name '*.c')
+TEST_BINS := $(patsubst %.c, $(BIN_DIR)/%, $(notdir $(TEST_SRCS)))
+
+SRC_SUBDIRS := $(shell find $(SRC_DIR) -type d)
+TEST_SUBDIRS := $(shell find $(TEST_DIR) -type d)
+
+vpath %.c $(SRC_SUBDIRS) $(TEST_SUBDIRS)
 
 # Default: Build all tests
 all: $(TEST_BINS)
 
 # Turn src/%.c into obj/%.o
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Turn tests/%.c into bin/%
-# NOTE: We depend on $(LIB_OBJS) so the library is compiled first!
-$(BIN_DIR)/%: $(TEST_DIR)/%.c $(LIB_OBJS) | $(BIN_DIR)
+$(BIN_DIR)/%: %.c $(LIB_OBJS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $< $(LIB_OBJS) -o $@
 
 $(OBJ_DIR):
@@ -33,4 +36,11 @@ $(BIN_DIR):
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean
+list:
+	@echo "Library Sources: $(LIB_SRCS)"
+	@echo "Library Objects: $(LIB_OBJS)"
+	@echo "Test Sources:    $(TEST_SRCS)"
+	@echo "Test Binaries:   $(TEST_BINS)"
+	@echo "VPATH Paths:     $(SRC_SUBDIRS) $(TEST_SUBDIRS)"
+
+.PHONY: all clean list

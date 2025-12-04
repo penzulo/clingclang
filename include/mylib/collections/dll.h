@@ -4,7 +4,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct LinkedList LinkedList;
+typedef struct ListNode {
+  void *data;
+  struct ListNode *prev;
+  struct ListNode *next;
+} ListNode;
+
+typedef struct {
+  ListNode *head;
+  ListNode *tail;
+  size_t size;
+} LinkedList;
 
 /**
  * @brief Creates a new doubly linked list containing one initial element.
@@ -94,18 +104,13 @@ void *dll_pop_back(LinkedList *list);
 void *dll_pop_front(LinkedList *list);
 
 /**
- * @brief Creates a new doubly linked list having elements of a given array.
+ * @brief Frees all nodes in the list, head and tail are set to NULL.
  *
- * Iterates through and array and pushes elements in a newly create doubly
- * linked list. Takes O(n) time.
+ * List can still be used after this call.
  *
- * @param array  Pointer to an array's first element.
- * @param size_t Length of the array.
- * @param esize  Size of each element in bytes.
- *
- * @return Pointer to the new Linked List.
+ * @param list Pointer to the list to clear.
  */
-LinkedList *dll_from_array(void *array, size_t length, size_t esize);
+void dll_clear(LinkedList *list);
 
 /**
  * @brief Frees all nodes in the list and then frees the list structure itself.
