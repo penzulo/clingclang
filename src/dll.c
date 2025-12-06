@@ -1,3 +1,4 @@
+#include "mylib/collections/dll.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -7,49 +8,44 @@ typedef struct ListNode {
   struct ListNode *next;
 } ListNode;
 
-typedef struct {
+typedef struct LinkedList {
   ListNode *head;
   ListNode *tail;
   size_t size;
 } LinkedList;
 
-LinkedList *dll_new(void *data) {
-  ListNode *node = malloc(sizeof(ListNode));
-  if (!node) return NULL;
-  node->data = data;
-  node->next = NULL;
-  node->prev = NULL;
+typedef struct DllIterator {
+  ListNode *current;
+} DllIterator;
+
+LinkedList *dll_create(void) {
   LinkedList *list = malloc(sizeof(LinkedList));
-  if (!list) {
-    free(node);
-    return NULL;
-  }
-  list->head = node;
-  list->tail = node;
-  list->size = 1;
+  if (!list) return NULL;
+  list->head = NULL;
+  list->tail = NULL;
+  list->size = 0;
   return list;
 }
 
-void *dll_back(LinkedList *list) {
+ListNode *dll_back_node(const LinkedList *list) {
   return (list && list->tail) ? list->tail : NULL;
 }
 
-void *dll_front(LinkedList *list) {
+ListNode *dll_front_node(const LinkedList *list) {
   return (list && list->head) ? list->head : NULL;
 }
 
-size_t dll_size(LinkedList *list) { return list->size; }
+size_t dll_size(const LinkedList *list) { return list ? list->size : 0; }
 
-uint8_t dll_is_empty(LinkedList *list) {
-  return !list->head && !list->tail && !list->size;
-}
+int dll_is_empty(const LinkedList *list) { return !list || list->size == 0; }
 
-uint8_t dll_push_back(LinkedList *list, void *data) {
+int dll_push_back(LinkedList *list, void *data) {
+  if (!list) return -1;
   ListNode *node = malloc(sizeof(ListNode));
-  if (!node) return 1;
+  if (!node) return -1;
   node->data = data;
-  node->prev = list->tail;
   node->next = NULL;
+  node->prev = list->tail;
   if (list->tail) list->tail->next = node;
   else list->head = node;
   list->tail = node;
@@ -57,12 +53,13 @@ uint8_t dll_push_back(LinkedList *list, void *data) {
   return 0;
 }
 
-uint8_t dll_push_front(LinkedList *list, void *data) {
+int dll_push_front(LinkedList *list, void *data) {
+  if (!list) return -1;
   ListNode *node = malloc(sizeof(ListNode));
-  if (!node) return 1;
+  if (!node) return -1;
   node->data = data;
-  node->prev = NULL;
   node->next = list->head;
+  node->prev = NULL;
   if (list->head) list->head->prev = node;
   else list->tail = node;
   list->head = node;
@@ -95,10 +92,40 @@ void *dll_pop_front(LinkedList *list) {
 }
 
 void dll_clear(LinkedList *list) {
-  for (; list->head; dll_pop_back(list)) {}
+  if (!list) return;
+  ListNode *current = list->head;
+
+  while (current) {
+    ListNode *next = current->next;
+    free(current);
+    current = next;
+  }
+
+  list->head = NULL;
+  list->tail = NULL;
+  list->size = 0;
 }
 
-void dll_free(LinkedList *list) {
+void dll_destroy(LinkedList *list) {
+  if (!list) return;
   dll_clear(list);
   free(list);
 }
+
+DllIterator *dll_iter_create(LinkedList *list) {
+  if (!list) return NULL;
+  DllIterator *iter = malloc(sizeof(DllIterator));
+  if (!iter) return NULL;
+
+  iter->current = list->head;
+  return iter;
+}
+
+void *dll_iter_next(DllIterator *iter) {
+  if (!iter || !iter->current) return NULL;
+  void *data = iter->current->data;
+  iter->current = iter->current->next;
+  return data;
+}
+
+void dll_iter_destroy(DllIterator *iter) { free(iter); }

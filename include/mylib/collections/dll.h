@@ -4,89 +4,56 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct ListNode {
-  void *data;
-  struct ListNode *prev;
-  struct ListNode *next;
-} ListNode;
-
-typedef struct {
-  ListNode *head;
-  ListNode *tail;
-  size_t size;
-} LinkedList;
+typedef struct LinkedList LinkedList;
+typedef struct ListNode ListNode;
+typedef struct DllIterator DllIterator;
 
 /**
- * @brief Creates a new doubly linked list containing one initial element.
- *
- * Allocates a new list and a single node storing the given data.
- *
- * @param data Pointer to the initial element's data.
- * @return Pointer to the newly created LinkedList, or NULL on allocation
- * failure.
+ * @brief Creates a new, empty doubly linked list.
+ * @return Pointer to the new LinkedList, or NULL on allocation failure.
  */
-LinkedList *dll_new(void *data);
+LinkedList *dll_create(void);
 
 /**
- * @brief Returns the data stored at the tail of the list without removing it.
- *
- * @param list The list to inspect (passed by referebce; not modified).
- * @return Pointer to the tail's data, or NULL if the list is empty.
+ * @brief Frees all nodes and the list structure itself (Shallow Destroy).
+ * The list's data pointers are NOT freed.
+ * @param list Pointer to the list to destroy.
  */
-void *dll_back(LinkedList *list);
+void dll_destroy(LinkedList *list);
 
 /**
- * @brief Returns the data stored at the head of the list without removing it.
- *
- * @param list The list to inspect (passed by referebce; not modified).
- * @return Pointer to the head's data, or NULL if the list is empty.
- */
-void *dll_front(LinkedList *list);
-
-/**
- * @brief Returns the number of elements currently stored in the list.
- *
+ * @brief Returns the tail node of the list.
  * @param list Pointer to the list to inspect.
- * @return The number of nodes in the list, or 0 if list is NULL.
+ * @return Pointer to the tail or NULL if empty.
  */
-size_t dll_size(LinkedList *list);
+ListNode *dll_back_node(const LinkedList *list);
 
 /**
- * @breif Checks if the list is empty.
- *
+ * @brief Returns the head node of the list.
  * @param list Pointer to the list to inspect.
- * @return 1 if empty, else 0.
+ * @return Pointer to the head or NULL if empty.
  */
-uint8_t dll_is_empty(LinkedList *list);
+ListNode *dll_front_node(const LinkedList *list);
 
 /**
- * @brief Appends a new node containing the given data to the end of the list.
- *
- * Updates the tail pointer and increases the list size.
- *
+ * @brief Appends a new node containing the given data to the end of the
+ * list.
  * @param list Pointer to the list to modify.
  * @param data Pointer to the data to insert.
- * @return 0 on success, non-zero on allocation failure.
+ * @return 0 on success, -1 on allocation or list failure.
  */
-uint8_t dll_push_back(LinkedList *list, void *data);
+int dll_push_back(LinkedList *list, void *data);
 
 /**
  * @brief Inserts a new node containing the given data at the front of the list.
- *
- * Updates the head pointer and increases the list size.
- *
  * @param list Pointer to the list to modify.
  * @param data Pointer to the data to insert.
- * @return 0 on success, non-zero on allocation failure.
+ * @return 0 on success, -1 on allocation or list failure.
  */
-uint8_t dll_push_front(LinkedList *list, void *data);
+int dll_push_front(LinkedList *list, void *data);
 
 /**
  * @brief Removes the last node of the list and returns its data.
- *
- * Updates the tail pointer, decreases the list size, frees the removed node,
- * and returns the stored data.
- *
  * @param list Pointer to the list to modify.
  * @return Pointer to the removed node's data, or NULL if the list is empty.
  */
@@ -94,31 +61,51 @@ void *dll_pop_back(LinkedList *list);
 
 /**
  * @brief Removes the first node of the list and returns its data.
- *
- * Updates the head pointer, decreases the list size, frees the removed node,
- * and returns the stored data.
- *
  * @param list Pointer to the list to modify.
  * @return Pointer to the removed node's data, or NULL if the list is empty.
  */
 void *dll_pop_front(LinkedList *list);
 
 /**
- * @brief Frees all nodes in the list, head and tail are set to NULL.
- *
- * List can still be used after this call.
- *
+ * @brief Removes and frees all nodes in the list. The data is NOT freed.
+ * The list struct itself remains valid and empty (size 0).
  * @param list Pointer to the list to clear.
  */
 void dll_clear(LinkedList *list);
 
 /**
- * @brief Frees all nodes in the list and then frees the list structure itself.
- *
- * After this call, the list pointer is no longer valid.
- *
- * @param list Pointer to the list to free.
+ * @brief Returns the number of elements currently stored in the list.
+ * @param list Pointer to the list to inspect.
+ * @return The number of nodes in the list, or 0 if list is NULL.
  */
-void dll_free(LinkedList *list);
+size_t dll_size(const LinkedList *list);
+
+/**
+ * @brief Checks if the list is empty.
+ * @param list Pointer to the list to inspect.
+ * @return true if empty (or NULL), else false.
+ */
+int dll_is_empty(const LinkedList *list);
+
+/**
+ * @brief Creates a new iterator positioned at the head of the list.
+ * @param list The list to iterate over.
+ * @return A new DllIterator pointer, or NULL on failure.
+ */
+DllIterator *dll_iter_create(LinkedList *list);
+
+/**
+ * @brief Advances the iterator and returns the data of the current node.
+ * @param iter The iterator to advance.
+ * @return The data pointer of the current node, or NULL if the iteration is
+ * complete.
+ */
+void *dll_iter_next(DllIterator *iter);
+
+/**
+ * @brief Frees the iterator structure.
+ * @param iter The iterator to free.
+ */
+void dll_iter_destroy(DllIterator *iter);
 
 #endif

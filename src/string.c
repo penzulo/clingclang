@@ -33,6 +33,8 @@ size_t strlength(const char *str) {
   return len;
 }
 
+size_t strlength_a(const char *str) { return strlength(str) + 1; }
+
 char *strcopy(const char *src, char *dest) {
   char *dptr = dest;
   while ((*dptr++ = *src++) != '\0') {};

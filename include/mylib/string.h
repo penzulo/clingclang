@@ -17,6 +17,18 @@
 size_t strlength(const char *str);
 
 /**
+ * @brief Calculate the actual length of a string from 1.
+ *
+ * Calculates the length of the string pointed to
+ * by `str`. Includes the null terminating byte ('\0')
+ *
+ * @param[in] str Pointer to the string's first character.
+ *
+ * @return Length of the string including the null terminator.
+ */
+size_t strlength_a(const char *str);
+
+/**
  * @brief Copies a string from src to dst.
  *
  * Takes source and destination as input and copies
