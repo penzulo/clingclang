@@ -12,7 +12,15 @@ void *memcopy(const void *restrict src, void *restrict dest, size_t n) {
 
   // Post-increment has higher precedence that dereference,
   // so this moves the pointers forward after assignment.
-  for (; n; *convdest++ = *convsrc++, n--) {}
+  // for (; n; *convdest++ = *convsrc++, n--) {}
+  // The following has the same logic as the one above but
+  // is more readable and the compiler will optimize these
+  // instructions into a single instruction anyway.
+  while (n) {
+    *convdest = *convsrc;
+    convdest++;
+    convsrc++;
+  }
 
   return dptr;
 }
